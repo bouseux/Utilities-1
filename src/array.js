@@ -1,3 +1,33 @@
+if(!Array.each){
+    /**
+     * Iterates over each element in an array by calling the callback function for each element.
+     * The callback will receive the element as its first parameter and the element's index as the second.
+     * NOTE: You can break out of the loop by returning false from the callback
+     * @param {Array} array source array over which to iterate
+     * @param {Function} callback will receive both the array element and its index as passed parameters
+     * @returns {boolean}
+     */
+    Array.each = function(array, callback){
+        if(!array || !('length' in array) || !callback) return array;
+        for(var i=0; i<array.length; i++){
+            if(callback(array[i], i) === false) return false;
+        }
+        return true;
+    }
+}
+
+if(!Array.copy){
+    /**
+     * Returns a deep copy of the source array (or can be any javascript type)
+     * @param {Array|*} source
+     * @returns {Array|*}
+     */
+    Array.copy = function(source){
+        if(!JSON) return source;
+        return JSON.parse(JSON.stringify(source));
+    }
+}
+
 if(!Array.find){
     /**
      * Will find and return all elements in the given array that match the given
@@ -8,8 +38,8 @@ if(!Array.find){
      *       each element in the array.  Assumes that the array is an array of object elements.
      * The onlyOne parameter specifies whether a single result should be returned
      * It returns a new array with the resulting matched elements
-     * @param {type} array
-     * @param {type} filter
+     * @param {Array} array
+     * @param {Object|boolean|string|number} filter
      * @param {boolean} onlyOne
      * @returns {Array|Array.find.array|@exp;results@pro;length}
      */

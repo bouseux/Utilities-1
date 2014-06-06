@@ -1,3 +1,15 @@
+if(!Object.copy){
+    /**
+     * Returns a deep copy of the source object (or can be any javascript type)
+     * @param {Object|*} source
+     * @returns {Object|*}
+     */
+    Object.copy = function(source){
+        if(!JSON) return source;
+        return JSON.parse(JSON.stringify(source));
+    }
+}
+
 if(!Object.isArray){
     Object.isArray = function(obj){
         return Array.isArray(obj);
@@ -22,8 +34,8 @@ if(!Object.isNumber){
     };
 }
 
-if(!Object.isJSON){
-    Object.isJSON = function(obj){
+if(!Object.isObject){
+    Object.isObject = function(obj){
         return obj !== null && obj !== undefined && !Array.isArray(obj)
             && !obj.getTimezoneOffset && !obj.getUTCMilliseconds
             && typeof(obj) !== 'string' && typeof(obj) !== 'number';

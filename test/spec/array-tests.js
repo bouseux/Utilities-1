@@ -1,6 +1,12 @@
 describe('Array', function(){
     var objects, numbers, strings, mixed, result, expected;
 
+    describe('.each()', function () {
+
+
+
+    });
+
     describe('.find()', function(){
 
         beforeEach(function(){
@@ -49,37 +55,37 @@ describe('Array', function(){
         it('should find all elements in the array where the simple filter matches', function(){
             result = Array.find(numbers, 1);
             expected = [1];
-            expect(angular.equals(result, expected)).toEqual(true);
+            expect(result).toEqual(expected);
             result = Array.find(numbers, 1.3);
             expected = [1.3];
-            expect(angular.equals(result, expected)).toEqual(true);
+            expect(result).toEqual(expected);
             result = Array.find(numbers, 4);
             expected = [4, 4];
-            expect(angular.equals(result, expected)).toEqual(true);
+            expect(result).toEqual(expected);
             result = Array.find(strings, 'string2');
             expected = ['string2'];
-            expect(angular.equals(result, expected)).toEqual(true);
+            expect(result).toEqual(expected);
             result = Array.find(strings, 'string4');
             expected = ['string4','string4'];
-            expect(angular.equals(result, expected)).toEqual(true);
+            expect(result).toEqual(expected);
             result = Array.find(mixed, 1);
             expected = [1];
-            expect(angular.equals(result, expected)).toEqual(true);
+            expect(result).toEqual(expected);
             result = Array.find(mixed, 'string2');
             expected = ['string2'];
-            expect(angular.equals(result, expected)).toEqual(true);
+            expect(result).toEqual(expected);
         });
 
         it('should find all elements in the array where all keys in the filter object match', function(){
             result = Array.find(objects, {key2: 'value2'});
             expected = [objects[0]];
-            expect(angular.equals(result, expected)).toEqual(true);
+            expect(result).toEqual(expected);
             result = Array.find(objects, {key2: 'value1', key3: 'value2'});
             expected = [objects[2]];
-            expect(angular.equals(result, expected)).toEqual(true);
+            expect(result).toEqual(expected);
             result = Array.find(objects, {key1: 'value2'});
             expected = [objects[1],objects[3]];
-            expect(angular.equals(result, expected)).toEqual(true);
+            expect(result).toEqual(expected);
         });
 
         it('should return null if the filter object does not match', function(){
@@ -112,25 +118,25 @@ describe('Array', function(){
         it('should only return the first matching result for simple filters', function(){
             result = Array.findOne(numbers, 1);
             expected = 1;
-            expect(angular.equals(result, expected)).toEqual(true);
+            expect(result).toEqual(expected);
             result = Array.findOne(numbers, 1.3);
             expected = 1.3;
-            expect(angular.equals(result, expected)).toEqual(true);
+            expect(result).toEqual(expected);
             result = Array.findOne(numbers, 4);
             expected = 4;
-            expect(angular.equals(result, expected)).toEqual(true);
+            expect(result).toEqual(expected);
             result = Array.findOne(strings, 'string2');
             expected = 'string2';
-            expect(angular.equals(result, expected)).toEqual(true);
+            expect(result).toEqual(expected);
             result = Array.findOne(strings, 'string4');
             expected = 'string4';
-            expect(angular.equals(result, expected)).toEqual(true);
+            expect(result).toEqual(expected);
             result = Array.findOne(mixed, 1);
             expected = 1;
-            expect(angular.equals(result, expected)).toEqual(true);
+            expect(result).toEqual(expected);
             result = Array.findOne(mixed, 'string2');
             expected = 'string2';
-            expect(angular.equals(result, expected)).toEqual(true);
+            expect(result).toEqual(expected);
         });
 
     });
@@ -153,11 +159,11 @@ describe('Array', function(){
 
         it('should NOT replace any values if the simple filter does NOT match', function(){
             result = Array.replaceAll(numbers, 100, null);
-            expect(angular.equals(result, numbers)).toEqual(true);
+            expect(result).toEqual(numbers);
             result = Array.replaceAll(strings, 'string7', null);
-            expect(angular.equals(result, strings)).toEqual(true);
+            expect(result).toEqual(strings);
             result = Array.replaceAll(mixed, 'string7', null);
-            expect(angular.equals(result, mixed)).toEqual(true);
+            expect(result).toEqual(mixed);
         });
 
         it('should replace all values if the simple filter matches', function(){
@@ -180,12 +186,12 @@ describe('Array', function(){
 
         it('should replace all values if the filter object matches', function(){
             Array.replaceAll(objects, {key1: 'value3'}, {});
-            expect(angular.equals(objects[2], {})).toEqual(true);
+            expect(objects[2]).toEqual({});
             Array.replaceAll(objects, {key3: 'value3'}, {});
-            expect(angular.equals(objects[0], {})).toEqual(true);
+            expect(objects[0]).toEqual({});
             Array.replaceAll(objects, {key1: 'value2'}, {});
-            expect(angular.equals(objects[0], {})).toEqual(true);
-            expect(angular.equals(objects[2], {})).toEqual(true);
+            expect(objects[0]).toEqual({});
+            expect(objects[2]).toEqual({});
         });
 
     });
@@ -208,19 +214,19 @@ describe('Array', function(){
 
         it('should return the original array if no "by" field is supplied', function(){
             var result = Array.sortBy(objects, undefined);
-            expect(angular.equals(result, objects)).toEqual(true);
+            expect(result).toEqual(objects);
         });
 
         it('should sort the array of objects based on the field provided', function(){
-            var expected = angular.copy(objects).reverse();
+            var expected = Array.copy(objects).reverse();
             var result = Array.sortBy(objects, 'key4');
-            expect(angular.equals(result, expected)).toEqual(true);
+            expect(result).toEqual(expected);
         });
 
         it('should sort the array of objects based on the field and thenBy field provided', function(){
             var expected = [objects[0], objects[3], objects[1], objects[2]];
             var result = Array.sortBy(objects, 'key1', 'key4');
-            expect(angular.equals(result, expected)).toEqual(true);
+            expect(result).toEqual(expected);
         });
 
     });
@@ -240,15 +246,15 @@ describe('Array', function(){
         });
 
         it('should return the original array if the filter does not match', function(){
-            var orig = angular.copy(numbers);
+            var orig = Array.copy(numbers);
             Array.removeAll(numbers, 100);
-            expect(angular.equals(numbers, orig)).toEqual(true);
-            orig = angular.copy(strings);
+            expect(numbers).toEqual(orig);
+            orig = Array.copy(strings);
             Array.removeAll(strings, 'string7');
-            expect(angular.equals(strings, orig)).toEqual(true);
-            orig = angular.copy(mixed);
+            expect(strings).toEqual(orig);
+            orig = Array.copy(mixed);
             Array.removeAll(mixed, 'string7');
-            expect(angular.equals(mixed, orig)).toEqual(true);
+            expect(mixed).toEqual(orig);
         });
 
         it('should remove all elements that match the given filter', function(){

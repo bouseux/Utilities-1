@@ -49,8 +49,8 @@ if(!Array.find){
         for(var i=0; i<array.length; i++){
             if(Object.matches(array[i], filter, null, caseInsensitive)){
                 if(onlyOne && indexes) return i;
+				else if(onlyOne) return array[i];
                 else if(indexes) results.push(i);
-                else if(onlyOne) return array[i];
                 else results.push(array[i]);
             }
         }

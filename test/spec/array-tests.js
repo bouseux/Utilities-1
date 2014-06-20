@@ -2,10 +2,90 @@ describe('Array', function(){
     var objects, numbers, strings, mixed, result, expected;
 
     describe('.each()', function () {
+		var array, spy, falsy = null;
 
+		beforeEach(function(){
+		    array = [{key:'value1'},{key:'value2'},{key:'value3'},{key:'value4'}];
+			spy = jasmine.createSpyObj('spy',['callback']);
+		});
 
+		it('should return the array if the array is falsy', function(){
+		    var res = Array.each(falsy, spy.callback);
+			expect(res).toEqual(falsy);
+		});
+
+		it('should return the array if a falsy callback is given', function(){
+			var res = Array.each(array, falsy);
+			expect(res).toEqual(array);
+		});
+		
+		it('should call the callback function for each item in the array', function(){
+		    Array.each(array, spy.callback);
+			expect(spy.callback.calls.count()).toEqual(array.length);
+		});
+
+		it('should pass each item in the array as the first parameter to the callback', function(){
+			Array.each(array, spy.callback);
+			for(var i=0; i<array.length; i++){
+				expect(spy.callback.calls.argsFor(i)).toContain(array[i]);
+			}
+		});
+
+		it('should pass the index for each item in the array as the second parameter to the callback', function(){
+			Array.each(array, spy.callback);
+			for(var i=0; i<array.length; i++){
+				expect(spy.callback.calls.argsFor(i)).toContain(i);
+			}
+		});
+
+		it('should break out of the loop if the callback returns false', function(){
+			spy.callback2 = function(item, index){
+				if(index >= 2){
+					return false;
+				}
+			};
+			spyOn(spy, 'callback2').and.callThrough();
+		    Array.each(array, spy.callback2);
+			expect(spy.callback2.calls.count()).toEqual(3);
+			expect(spy.callback2.calls.count()).toBeLessThan(array.length);
+		});
 
     });
+
+	describe('.copy()', function () {
+		var array;
+
+		beforeEach(function(){
+		    array = [{key:'value1'},{key:'value2'},{key:'value3'},{key:'value4'}];
+		});
+
+		it('should return the original array if JSON is not defined', function(){
+		    var json = JSON;
+			JSON = undefined;
+			var copy = Array.copy(array);
+			expect(copy).toBe(array);
+			JSON = json;
+		});
+
+		it('should return a new object reference', function(){
+			var copy = Array.copy(array);
+			expect(copy).not.toBe(array);
+			expect(copy).toEqual(array);
+		});
+
+		it('should return an array that has the same length as the original', function(){
+			var copy = Array.copy(array);
+			expect(copy.length).toEqual(array.length);
+		});
+
+		it('should return new object references for every item in the array', function(){
+			var copy = Array.copy(array);
+			for(var i=0; i<array.length; i++){
+				expect(copy[i]).not.toBe(array[i]);
+				expect(copy[i]).toEqual(array[i]);
+			}
+		});
+	});
 
     describe('.find()', function(){
 
@@ -22,80 +102,176 @@ describe('Array', function(){
 
         });
 
-        it('should return an array if the filter matches', function(){
-            result = Array.find(numbers, 1);
-            expect(Array.isArray(result)).toEqual(true);
-            result = Array.find(numbers, 1.3);
-            expect(Array.isArray(result)).toEqual(true);
-            result = Array.find(numbers, 4);
-            expect(Array.isArray(result)).toEqual(true);
-            result = Array.find(strings, 'string2');
-            expect(Array.isArray(result)).toEqual(true);
-            result = Array.find(strings, 'string4');
-            expect(Array.isArray(result)).toEqual(true);
-            result = Array.find(mixed, 1);
-            expect(Array.isArray(result)).toEqual(true);
-            result = Array.find(mixed, 'string2');
-            expect(Array.isArray(result)).toEqual(true);
-        });
+		describe('basic', function () {
 
-        it('should return null if the filter does not match', function(){
-            result = Array.find(numbers, 100);
-            expect(result).toBeNull();
-            result = Array.find(numbers, 12.34);
-            expect(result).toBeNull();
-            result = Array.find(strings, 'string7');
-            expect(result).toBeNull();
-            result = Array.find(mixed, 10);
-            expect(result).toBeNull();
-            result = Array.find(mixed, 'string7');
-            expect(result).toBeNull();
-        });
+			it('should return an array if the filter matches', function(){
+				result = Array.find(numbers, 1);
+				expect(result).toEqual(jasmine.any(Array));
 
-        it('should find all elements in the array where the simple filter matches', function(){
-            result = Array.find(numbers, 1);
-            expected = [1];
-            expect(result).toEqual(expected);
-            result = Array.find(numbers, 1.3);
-            expected = [1.3];
-            expect(result).toEqual(expected);
-            result = Array.find(numbers, 4);
-            expected = [4, 4];
-            expect(result).toEqual(expected);
-            result = Array.find(strings, 'string2');
-            expected = ['string2'];
-            expect(result).toEqual(expected);
-            result = Array.find(strings, 'string4');
-            expected = ['string4','string4'];
-            expect(result).toEqual(expected);
-            result = Array.find(mixed, 1);
-            expected = [1];
-            expect(result).toEqual(expected);
-            result = Array.find(mixed, 'string2');
-            expected = ['string2'];
-            expect(result).toEqual(expected);
-        });
+				result = Array.find(numbers, 1.3);
+				expect(result).toEqual(jasmine.any(Array));
 
-        it('should find all elements in the array where all keys in the filter object match', function(){
-            result = Array.find(objects, {key2: 'value2'});
-            expected = [objects[0]];
-            expect(result).toEqual(expected);
-            result = Array.find(objects, {key2: 'value1', key3: 'value2'});
-            expected = [objects[2]];
-            expect(result).toEqual(expected);
-            result = Array.find(objects, {key1: 'value2'});
-            expected = [objects[1],objects[3]];
-            expect(result).toEqual(expected);
-        });
+				result = Array.find(numbers, 4);
+				expect(result).toEqual(jasmine.any(Array));
 
-        it('should return null if the filter object does not match', function(){
-            result = Array.find(objects, {key2: 'value5'});
-            expect(result).toBeNull();
-            result = Array.find(objects, {key2: 'value1', key3: 'value5'});
-            expect(result).toBeNull();
-            result = Array.find(objects, {key1: 'value5'});
-            expect(result).toBeNull();
-        });
+				result = Array.find(strings, 'string2');
+				expect(result).toEqual(jasmine.any(Array));
+
+				result = Array.find(strings, 'string4');
+				expect(result).toEqual(jasmine.any(Array));
+
+				result = Array.find(mixed, 1);
+				expect(result).toEqual(jasmine.any(Array));
+
+				result = Array.find(mixed, 'string2');
+				expect(result).toEqual(jasmine.any(Array));
+			});
+
+			it('should return null if the filter does not match', function(){
+				result = Array.find(numbers, 100);
+				expect(result).toBeNull();
+
+				result = Array.find(numbers, 12.34);
+				expect(result).toBeNull();
+
+				result = Array.find(strings, 'string7');
+				expect(result).toBeNull();
+
+				result = Array.find(mixed, 10);
+				expect(result).toBeNull();
+
+				result = Array.find(mixed, 'string7');
+				expect(result).toBeNull();
+			});
+
+			it('should find all elements in the array where the simple filter matches', function(){
+				result = Array.find(numbers, 1);
+				expected = [1];
+				expect(result).toEqual(expected);
+
+				result = Array.find(numbers, 1.3);
+				expected = [1.3];
+				expect(result).toEqual(expected);
+
+				result = Array.find(numbers, 4);
+				expected = [4, 4];
+				expect(result).toEqual(expected);
+
+				result = Array.find(strings, 'string2');
+				expected = ['string2'];
+				expect(result).toEqual(expected);
+
+				result = Array.find(strings, 'string4');
+				expected = ['string4','string4'];
+				expect(result).toEqual(expected);
+
+				result = Array.find(mixed, 1);
+				expected = [1];
+				expect(result).toEqual(expected);
+
+				result = Array.find(mixed, 'string2');
+				expected = ['string2'];
+				expect(result).toEqual(expected);
+			});
+
+			it('should find all elements in the array where all keys in the filter object match', function(){
+				result = Array.find(objects, {key2: 'value2'});
+				expected = [objects[0]];
+				expect(result).toEqual(expected);
+
+				result = Array.find(objects, {key2: 'value1', key3: 'value2'});
+				expected = [objects[2]];
+				expect(result).toEqual(expected);
+
+				result = Array.find(objects, {key1: 'value2'});
+				expected = [objects[1],objects[3]];
+				expect(result).toEqual(expected);
+			});
+
+			it('should return null if the filter object does not match', function(){
+				result = Array.find(objects, {key2: 'value5'});
+				expect(result).toBeNull();
+
+				result = Array.find(objects, {key2: 'value1', key3: 'value5'});
+				expect(result).toBeNull();
+
+				result = Array.find(objects, {key1: 'value5'});
+				expect(result).toBeNull();
+			});
+
+		});
+
+		describe('onlyOne', function () {
+
+			it('should return the first matching result for simple filters', function(){
+				result = Array.find(numbers, 1, true);
+				expected = 1;
+				expect(result).toEqual(expected);
+
+				result = Array.find(numbers, 1.3, true);
+				expected = 1.3;
+				expect(result).toEqual(expected);
+
+				result = Array.find(numbers, 4, true);
+				expected = 4;
+				expect(result).toEqual(expected);
+
+				result = Array.find(strings, 'string2', true);
+				expected = 'string2';
+				expect(result).toEqual(expected);
+
+				result = Array.find(strings, 'string4', true);
+				expected = 'string4';
+				expect(result).toEqual(expected);
+
+				result = Array.find(mixed, 1, true);
+				expected = 1;
+				expect(result).toEqual(expected);
+
+				result = Array.find(mixed, 'string2', true);
+				expected = 'string2';
+				expect(result).toEqual(expected);
+			});
+
+		});
+
+		describe('indexes', function () {
+
+			it('should return the index of the first matching result for simple filters', function(){
+				result = Array.find(numbers, 1.5, false, true);
+				expected = [numbers.indexOf(1.5)];
+				expect(result).toEqual(expected);
+
+				result = Array.find(numbers, 5, false, true);
+				expected = [numbers.indexOf(5)];
+				expect(result).toEqual(expected);
+
+				result = Array.find(numbers, 4, false, true);
+				expected = [numbers.indexOf(4), numbers.length-1];
+				expect(result).toEqual(expected);
+
+				result = Array.find(strings, 'string2', false, true);
+				expected = [strings.indexOf('string2')];
+				expect(result).toEqual(expected);
+
+				result = Array.find(strings, 'string4', false, true);
+				expected = [strings.indexOf('string4'), strings.lastIndexOf('string4')];
+				expect(result).toEqual(expected);
+
+				result = Array.find(mixed, 1, false, true);
+				expected = [mixed.indexOf(1)];
+				expect(result).toEqual(expected);
+
+				result = Array.find(mixed, 'string2', false, true);
+				expected = [mixed.indexOf('string2')];
+				expect(result).toEqual(expected);
+			});
+
+		});
+
+
+
+
 
     });
 
@@ -115,29 +291,7 @@ describe('Array', function(){
 
         });
 
-        it('should only return the first matching result for simple filters', function(){
-            result = Array.findOne(numbers, 1);
-            expected = 1;
-            expect(result).toEqual(expected);
-            result = Array.findOne(numbers, 1.3);
-            expected = 1.3;
-            expect(result).toEqual(expected);
-            result = Array.findOne(numbers, 4);
-            expected = 4;
-            expect(result).toEqual(expected);
-            result = Array.findOne(strings, 'string2');
-            expected = 'string2';
-            expect(result).toEqual(expected);
-            result = Array.findOne(strings, 'string4');
-            expected = 'string4';
-            expect(result).toEqual(expected);
-            result = Array.findOne(mixed, 1);
-            expected = 1;
-            expect(result).toEqual(expected);
-            result = Array.findOne(mixed, 'string2');
-            expected = 'string2';
-            expect(result).toEqual(expected);
-        });
+
 
     });
 

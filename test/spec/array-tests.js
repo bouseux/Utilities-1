@@ -1,6 +1,18 @@
 describe('Array', function(){
     var objects, numbers, strings, mixed, result, expected;
 
+	beforeEach(function(){
+		objects = [ //length = 4
+			{key1: 'value1', key2: 'value2', key3: 'value3'},
+			{key1: 'value2', key2: 'value3', key3: 'value1'},
+			{key1: 'value3', key2: 'value1', key3: 'value2'},
+			{key1: 'value2', key2: 'value3', key3: 'value1'}
+		];
+		numbers = [1,2,3,4,5,6,7,8,9,1.1,1.2,1.3,1.4,1.5,4]; // length = 15
+		strings = ['string1','string2','string3','string4','string4','string5']; // length = 6
+		mixed = [1,'string1',{key1: 'value1'},5,'string2',{key2: 'value2'},5]; // length = 7
+	});
+
     describe('.each()', function () {
 		var array, spy, falsy = null;
 
@@ -88,19 +100,6 @@ describe('Array', function(){
 	});
 
     describe('.find()', function(){
-
-        beforeEach(function(){
-            objects = [
-                {key1: 'value1', key2: 'value2', key3: 'value3'},
-                {key1: 'value2', key2: 'value3', key3: 'value1'},
-                {key1: 'value3', key2: 'value1', key3: 'value2'},
-                {key1: 'value2', key2: 'value3', key3: 'value1'}
-            ];
-            numbers = [1,2,3,4,5,6,7,8,9,1.1,1.2,1.3,1.4,1.5,4];
-            strings = ['string1','string2','string3','string4','string4','string5'];
-            mixed = [1,'string1',{key1: 'value1'},5,'string2',{key2: 'value2'}];
-
-        });
 
 		describe('basic', function () {
 
@@ -269,81 +268,136 @@ describe('Array', function(){
 
 		});
 
-
-
-
-
     });
 
     describe('.findOne()', function(){
-        var objects, numbers, strings, mixed, result, expected;
+        var array, filter;
 
         beforeEach(function(){
-            objects = [
-                {key1: 'value1', key2: 'value2', key3: 'value3'},
-                {key1: 'value2', key2: 'value3', key3: 'value1'},
-                {key1: 'value3', key2: 'value1', key3: 'value2'},
-                {key1: 'value2', key2: 'value3', key3: 'value1'}
-            ];
-            numbers = [1,2,3,4,5,6,7,8,9,1.1,1.2,1.3,1.4,1.5,4];
-            strings = ['string1','string2','string3','string4','string4','string5'];
-            mixed = [1,'string1',{key1: 'value1'},5,'string2',{key2: 'value2'}];
-
+            array = [];
+			filter = {};
+			spyOn(Array, 'find');
         });
 
+		it('should find the matching filters in the source array with caseInsensitive flag as true', function(){
+			Array.findOne(array, filter, true);
+			expect(Array.find).toHaveBeenCalledWith(array, filter, true, false, true);
+		});
 
+		it('should find the matching filters in the source array with caseInsensitive flag as false', function(){
+			Array.findOne(array, filter, false);
+			expect(Array.find).toHaveBeenCalledWith(array, filter, true, false, false);
+		});
 
     });
 
-    describe('.replaceAll()', function(){
-        var objects, numbers, strings, mixed, result, expected;
+	describe('.findIndexes()', function(){
+		var array, filter;
 
-        beforeEach(function(){
-            objects = [
-                {key1: 'value1', key2: 'value2', key3: 'value3'},
-                {key1: 'value2', key2: 'value3', key3: 'value1'},
-                {key1: 'value3', key2: 'value1', key3: 'value2'},
-                {key1: 'value2', key2: 'value3', key3: 'value1'}
-            ];
-            numbers = [1,2,3,4,5,6,7,8,9,1.1,1.2,1.3,1.4,1.5,4];
-            strings = ['string1','string2','string3','string4','string4','string5'];
-            mixed = [1,'string1',{key1: 'value1'},5,'string2',{key2: 'value2'},5];
+		beforeEach(function(){
+			array = [];
+			filter = {};
+			spyOn(Array, 'find');
+		});
 
-        });
+		it('should find the matching filters in the source array with caseInsensitive flag as true', function(){
+			Array.findIndexes(array, filter, true);
+			expect(Array.find).toHaveBeenCalledWith(array, filter, false, true, true);
+		});
+
+		it('should find the matching filters in the source array with caseInsensitive flag as false', function(){
+			Array.findIndexes(array, filter, false);
+			expect(Array.find).toHaveBeenCalledWith(array, filter, false, true, false);
+		});
+
+	});
+
+	describe('.findIndex()', function(){
+		var array, filter;
+
+		beforeEach(function(){
+			array = [];
+			filter = {};
+			spyOn(Array, 'find');
+		});
+
+		it('should find the matching filters in the source array with caseInsensitive flag as true', function(){
+			Array.findIndex(array, filter, true);
+			expect(Array.find).toHaveBeenCalledWith(array, filter, true, true, true);
+		});
+
+		it('should find the matching filters in the source array with caseInsensitive flag as false', function(){
+			Array.findIndex(array, filter, false);
+			expect(Array.find).toHaveBeenCalledWith(array, filter, true, true, false);
+		});
+
+	});
+
+	describe('.count()', function(){
+		var array, filter;
+
+		beforeEach(function(){
+			array = [{count:1},{count:2},{count:3},{count:1},{count:4}];
+			filter = {count:1};
+			spyOn(Array, 'find').and.returnValue([0,3]);
+		});
+
+		it('should return a numeric value', function(){
+			var result = Array.count(array, filter);
+			expect(typeof result).toEqual('number');
+		});
+
+		it('should return the correct number of matching results', function(){
+			var result = Array.count(array, filter);
+			expect(result).toEqual(2);
+		});
+
+	});
+
+    describe('.replace()', function(){
 
         it('should NOT replace any values if the simple filter does NOT match', function(){
-            result = Array.replaceAll(numbers, 100, null);
+            result = Array.replace(numbers, 100, null);
             expect(result).toEqual(numbers);
-            result = Array.replaceAll(strings, 'string7', null);
+
+            result = Array.replace(strings, 'string7', null);
             expect(result).toEqual(strings);
-            result = Array.replaceAll(mixed, 'string7', null);
+
+            result = Array.replace(mixed, 'string7', null);
             expect(result).toEqual(mixed);
         });
 
         it('should replace all values if the simple filter matches', function(){
-            Array.replaceAll(numbers, 2, null);
+            Array.replace(numbers, 2, null);
             expect(numbers[1]).toBeNull();
-            Array.replaceAll(numbers, 4, null);
+
+            Array.replace(numbers, 4, null);
             expect(numbers[3]).toBeNull();
             expect(numbers[numbers.length-1]).toBeNull();
-            Array.replaceAll(strings, 'string3', null);
+
+            Array.replace(strings, 'string3', null);
             expect(strings[2]).toBeNull();
-            Array.replaceAll(strings, 'string4', null);
+
+            Array.replace(strings, 'string4', null);
             expect(strings[3]).toBeNull();
             expect(strings[4]).toBeNull();
-            Array.replaceAll(mixed, 'string1', null);
+
+            Array.replace(mixed, 'string1', null);
             expect(mixed[1]).toBeNull();
-            Array.replaceAll(mixed, 5, null);
+
+            Array.replace(mixed, 5, null);
             expect(mixed[3]).toBeNull();
             expect(mixed[6]).toBeNull();
         });
 
         it('should replace all values if the filter object matches', function(){
-            Array.replaceAll(objects, {key1: 'value3'}, {});
+            Array.replace(objects, {key1: 'value3'}, {});
             expect(objects[2]).toEqual({});
-            Array.replaceAll(objects, {key3: 'value3'}, {});
+
+            Array.replace(objects, {key3: 'value3'}, {});
             expect(objects[0]).toEqual({});
-            Array.replaceAll(objects, {key1: 'value2'}, {});
+
+            Array.replace(objects, {key1: 'value2'}, {});
             expect(objects[0]).toEqual({});
             expect(objects[2]).toEqual({});
         });
@@ -351,16 +405,6 @@ describe('Array', function(){
     });
 
     describe('.sortBy()', function(){
-        var objects;
-
-        beforeEach(function(){
-            objects = [
-                {key1: 'value1', key2: 'value2', key3: 'value3', key4: 'value4'},
-                {key1: 'value2', key2: 'value3', key3: 'value1', key4: 'value3'},
-                {key1: 'value3', key2: 'value1', key3: 'value2', key4: 'value2'},
-                {key1: 'value2', key2: 'value3', key3: 'value1', key4: 'value1'}
-            ];
-        });
 
         it('should return false if no array is supplied', function(){
             expect(Array.sortBy(undefined, undefined)).toEqual(false);
@@ -372,8 +416,13 @@ describe('Array', function(){
         });
 
         it('should sort the array of objects based on the field provided', function(){
-            var expected = Array.copy(objects).reverse();
-            var result = Array.sortBy(objects, 'key4');
+            var expected = [
+				{key1:'value2',key2:'value3',key3:'value1'},
+				{key1:'value2',key2:'value3',key3:'value1'},
+				{key1:'value3',key2:'value1',key3:'value2'},
+				{key1:'value1',key2:'value2',key3:'value3'}
+			];
+            var result = Array.sortBy(objects, 'key3');
             expect(result).toEqual(expected);
         });
 
@@ -386,18 +435,6 @@ describe('Array', function(){
     });
 
     describe('.removeAll()', function(){
-
-        beforeEach(function(){
-            objects = [ //length = 4
-                {key1: 'value1', key2: 'value2', key3: 'value3'},
-                {key1: 'value2', key2: 'value3', key3: 'value1'},
-                {key1: 'value3', key2: 'value1', key3: 'value2'},
-                {key1: 'value2', key2: 'value3', key3: 'value1'}
-            ];
-            numbers = [1,2,3,4,5,6,7,8,9,1.1,1.2,1.3,1.4,1.5,4]; // length = 15
-            strings = ['string1','string2','string3','string4','string4','string5']; // length = 6
-            mixed = [1,'string1',{key1: 'value1'},5,'string2',{key2: 'value2'},5]; // length = 7
-        });
 
         it('should return the original array if the filter does not match', function(){
             var orig = Array.copy(numbers);

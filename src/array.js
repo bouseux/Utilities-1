@@ -78,12 +78,12 @@ if(!Array.findIndex){
 
 if(!Array.count){
     Array.count = function(array, filter){
-        return (Array.find(array, filter) || []).length;
+        return (Array.find(array, filter, false, true) || []).length;
     };
 }
 
-if(!Array.replaceAll){
-    Array.replaceAll = function(array, filter, newObj){
+if(!Array.replace){
+    Array.replace = function(array, filter, newObj){
         var indexes = Array.findIndexes(array, filter);
         if(!indexes) return array;
         for(var i=0; i<indexes.length; i++){
@@ -92,12 +92,27 @@ if(!Array.replaceAll){
         return array;
     };
 }
-if(!Array.replace){
-    Array.replace = function(array, filter, newObj){
-        var index = Array.findIndex(array, filter);
-        array[index] = newObj;
-        return array;
-    };
+
+if(!Array.replaceOne){
+	Array.replaceOne = function(array, filter, newObj){
+		var index = Array.findIndex(array, filter);
+		array[index] = newObj;
+		return array;
+	};
+}
+
+if(!Array.set){
+	Array.set = function(array, values){
+		if(!array || ! values) return array;
+		for(var i=0; i<array.length; i++){
+			for(var key in values){
+				if(values.hasOwnProperty(key)){
+					array[i][key] = values[key];
+				}
+			}
+		}
+		return array;
+	};
 }
 
 if(!Array.setOne){
@@ -107,20 +122,6 @@ if(!Array.setOne){
         for(var key in values){
             if(values.hasOwnProperty(key)){
                 array[index][key] = values[key];
-            }
-        }
-        return array;
-    };
-}
-
-if(!Array.setAll){
-    Array.setAll = function(array, values){
-        if(!array || ! values) return array;
-        for(var i=0; i<array.length; i++){
-            for(var key in values){
-                if(values.hasOwnProperty(key)){
-                    array[i][key] = values[key];
-                }
             }
         }
         return array;
@@ -155,6 +156,28 @@ if(!Array.sortBy){
 }
 
 if(!Array.remove){
+	/**
+	 * Will remove all elements in the given array that match the given
+	 *    filter, and return a new array containing the remaining elements.
+	 * The filter can be one of two things:
+	 *    1) A primitive value to compare for equality against all elements in the array.
+	 *    2) An object that contains keys where the key/value pairs will be compared against
+	 *       each element in the array.  Assumes that the array is an array of object elements.
+	 * It returns a new array with the resulting matched elements
+	 * @param {type} array
+	 * @param {type} filter
+	 * @returns {Array|Array.find.array|@exp;results@pro;length}
+	 */
+	Array.remove = function(array, filter){
+		var indexes = Array.findIndexes(array, filter) || [];
+		for(var i=0; i<indexes.length; i++){
+			array.splice(i, 1);
+		}
+		return array;
+	};
+}
+
+if(!Array.removeOne){
     /**
      * Will remove one element in the given array that matches the given
      *    filter, and return a new array containing the remaining elements.
@@ -167,32 +190,10 @@ if(!Array.remove){
      * @param {type} filter
      * @returns {Array|Array.find.array|@exp;results@pro;length}
      */
-    Array.remove = function(array, filter){
+    Array.removeOne = function(array, filter){
         var index = Array.findIndex(array, filter);
         if(typeof(index) != undefined && index > -1){
             array.splice(index, 1);
-        }
-        return array;
-    };
-}
-
-if(!Array.removeAll){
-    /**
-     * Will remove all elements in the given array that match the given
-     *    filter, and return a new array containing the remaining elements.
-     * The filter can be one of two things:
-     *    1) A primitive value to compare for equality against all elements in the array.
-     *    2) An object that contains keys where the key/value pairs will be compared against
-     *       each element in the array.  Assumes that the array is an array of object elements.
-     * It returns a new array with the resulting matched elements
-     * @param {type} array
-     * @param {type} filter
-     * @returns {Array|Array.find.array|@exp;results@pro;length}
-     */
-    Array.removeAll = function(array, filter){
-        var indexes = Array.findIndexes(array, filter) || [];
-        for(var i=0; i<indexes.length; i++){
-            array.splice(i, 1);
         }
         return array;
     };

@@ -428,41 +428,85 @@ describe('Array', function(){
 
         it('should sort the array of objects based on the field and thenBy field provided', function(){
             var expected = [objects[0], objects[3], objects[1], objects[2]];
-            var result = Array.sortBy(objects, 'key1', 'key4');
-            expect(result).toEqual(expected);
+            Array.sortBy(objects, 'key1', 'key4');
+            expect(objects).toEqual(expected);
         });
+
+		it('should sort in descending order if the reverse flag is set', function(){
+			var expected = [objects[0], objects[3], objects[1], objects[2]].reverse();
+			Array.sortBy(objects, 'key1', 'key4', true);
+			expect(objects).toEqual(expected);
+		});
 
     });
 
-    describe('.removeAll()', function(){
+    describe('.remove()', function(){
 
         it('should return the original array if the filter does not match', function(){
             var orig = Array.copy(numbers);
-            Array.removeAll(numbers, 100);
+            Array.remove(numbers, 100);
             expect(numbers).toEqual(orig);
             orig = Array.copy(strings);
-            Array.removeAll(strings, 'string7');
+            Array.remove(strings, 'string7');
             expect(strings).toEqual(orig);
             orig = Array.copy(mixed);
-            Array.removeAll(mixed, 'string7');
+            Array.remove(mixed, 'string7');
             expect(mixed).toEqual(orig);
         });
 
         it('should remove all elements that match the given filter', function(){
-            Array.removeAll(numbers, 2);
+            Array.remove(numbers, 2);
             expect(numbers.length).toEqual(14);
-            Array.removeAll(numbers, 4);
+            Array.remove(numbers, 4);
             expect(numbers.length).toEqual(12);
-            Array.removeAll(strings, 'string2');
+            Array.remove(strings, 'string2');
             expect(strings.length).toEqual(5);
-            Array.removeAll(strings, 'string4');
+            Array.remove(strings, 'string4');
             expect(strings.length).toEqual(3);
-            Array.removeAll(mixed, {key1: 'value1'});
+            Array.remove(mixed, {key1: 'value1'});
             expect(mixed.length).toEqual(6);
-            Array.removeAll(mixed, 5);
+            Array.remove(mixed, 5);
             expect(mixed.length).toEqual(4);
         });
 
     });
+
+	describe('.exists()', function () {
+
+		it('should return false if element does not exist in the source array', function(){
+		    var result = Array.exists(numbers, 1000);
+			expect(result).toEqual(false);
+			var result = Array.exists(strings, 'someString');
+			expect(result).toEqual(false);
+			var result = Array.exists(objects, {key:'someValue'});
+			expect(result).toEqual(false);
+		});
+
+		it('should return true if element exists in the source array', function(){
+			var result = Array.exists(numbers, 4);
+			expect(result).toEqual(true);
+			var result = Array.exists(strings, 'string1');
+			expect(result).toEqual(true);
+			var result = Array.exists(objects, objects[2]);
+			expect(result).toEqual(true);
+		});
+
+	});
+
+	describe('.unique()', function () {
+
+		it('should remove duplicate values from the source array', function(){
+			expect(numbers.length).toEqual(15);
+			Array.unique(numbers);
+			expect(numbers.length).toEqual(14);
+			expect(strings.length).toEqual(6);
+			Array.unique(strings);
+			expect(strings.length).toEqual(5);
+			expect(objects.length).toEqual(4);
+			Array.unique(objects);
+			expect(objects.length).toEqual(3);
+		});
+
+	});
 
 });

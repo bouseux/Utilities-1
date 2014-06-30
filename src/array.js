@@ -43,7 +43,7 @@ if(!Array.find){
      * @param {boolean} onlyOne
      * @returns {Array|Array.find.array|@exp;results@pro;length}
      */
-    Array.find = function(array, filter, onlyOne, indexes, caseInsensitive){
+    Array.find = function(array, filter, onlyOne, indexes, caseInsensitive, max){
         if(!array || !filter) return array;
         var results = [];
         for(var i=0; i<array.length; i++){
@@ -52,6 +52,7 @@ if(!Array.find){
 				else if(onlyOne) return array[i];
                 else if(indexes) results.push(i);
                 else results.push(array[i]);
+				if(max && results.length === max) break;
             }
         }
         return results.length ? results : null;
@@ -65,8 +66,8 @@ if(!Array.findOne){
 }
 
 if(!Array.findIndexes){
-    Array.findIndexes = function(array, filter, caseInsensitive){
-        return Array.find(array, filter, false, true, caseInsensitive);
+    Array.findIndexes = function(array, filter, caseInsensitive, max){
+        return Array.find(array, filter, false, true, caseInsensitive, max);
     };
 }
 
@@ -101,41 +102,7 @@ if(!Array.replaceOne){
 	};
 }
 
-if(!Array.set){
-	Array.set = function(array, values){
-		if(!array || ! values) return array;
-		for(var i=0; i<array.length; i++){
-			for(var key in values){
-				if(values.hasOwnProperty(key)){
-					array[i][key] = values[key];
-				}
-			}
-		}
-		return array;
-	};
-}
-
-if(!Array.setOne){
-    Array.setOne = function(array, filter, values){
-        if(!array || !filter || ! values) return array;
-        var index = Array.findIndex(array, filter);
-        for(var key in values){
-            if(values.hasOwnProperty(key)){
-                array[index][key] = values[key];
-            }
-        }
-        return array;
-    };
-}
-
 if(!Array.sortBy){
-    /**
-     * Sorts the given array of objects by the given property.  Assumes that the
-     *     array is an array of objects (ie: [{prop1:'somestr'},{prop1:'someotherstr'}] )
-     * @param {Array} array
-     * @param {String} property
-     * @returns {Array.sortBy.array|Boolean}
-     */
     (function(){
         var by, thenBy;
         var sortAscending = function(a, b){
@@ -144,6 +111,14 @@ if(!Array.sortBy){
         var sortDescending = function(a, b){
             return a[by] < b[by] ? 1 : ((a[by] == b[by] && thenBy) ? (a[thenBy] > b[thenBy] ? 1 : -1) : -1);
         };
+
+		/**
+		 * Sorts the given array of objects by the given property.  Assumes that the
+		 *     array is an array of objects (ie: [{prop1:'somestr'},{prop1:'someotherstr'}] )
+		 * @param {Array} array
+		 * @param {String} property
+		 * @returns {Array.sortBy.array|Boolean}
+		 */
         Array.sortBy = function(array, field, nextField, reverse){
             if(!array) return false;
             if(!field) return array;
@@ -199,78 +174,117 @@ if(!Array.removeOne){
     };
 }
 
-if(!Array.addToSet){
-    /**
-     * This will treat the given array as a set and will only add the remaining parameters to the array
-     *	if and only if said parameters are not already in the array
-     * Example:
-     *		var array = ['one','two'];
-     *		Array.addToSet(array, 'one', 'two', 'three'); // 'three' is the only
-     *		console.log(array); // prints out: ['one','two','three']
-     * @returns Array
-     */
-    Array.addToSet = function(){
-        var array = arguments[0];
-        for(var i=0; i<arguments.length; i++){
-            if(!Array.findOne(array, arguments[i])){ // if the element isn't already in the array
-                array.push(arguments[i]); // add the element to the end of the array
-            }
-        }
-        return array;
-    };
-}
-
 if(!Array.exists){
+	/**
+	 * Returns a boolean whether or not the filter value exists in the source array
+	 * @param array
+	 * @param filter
+	 * @returns {boolean}
+	 */
     Array.exists = function(array, filter){
         return Array.findIndex(array, filter) !== null;
     };
 }
 
-if(!Array.removeDups){
-    Array.removeDups = function(array, filter){
-        var foundAtLeastOne = false, newArray = new Array().concat(array);
+if(!Array.unique){
+	/**
+	 * Removes any duplicate elements from the source array so that only unique elements remain
+	 * @param array
+	 * @param filter
+	 * @returns {Array}
+	 */
+    Array.unique = function(array){
+		if(!array) return array;
+        var found = [];
         for(var i=0; i<array.length; i++){
-            if(!foundAtLeastOne || !Object.matches(array[i], filter)){
-                newArray.push(array[i]);
-                foundAtLeastOne = true;
-            }
+            if(!Array.exists(found, array[i])){
+				found.push(array[i]);
+				array[found.length-1] = found[found.length-1];
+			}
         }
-        return array;
-    };
-}
-
-if(!Array.removeProp){
-    Array.removeProp = function(array, filter, fields){
-        if(!array || !fields) return false;
-        if(!Array.isArray(fields)) fields = [fields];
-        if(filter && !Object.isEmpty(filter)){
-            var indexes = Array.findIndexes(array, filter) || [];
-            for(var i=0; i<indexes.length; i++){
-                for(var j=0; j<fields.length; j++){
-                    delete array[indexes[i]][fields[j]];
-                }
-            }
-        }else{
-            for(var i=0; i<array.length; i++){
-                for(var j=0; j<fields.length; j++){
-                    delete array[i][fields[j]];
-                }
-            }
-        }
+		array.length = found.length;
         return array;
     };
 }
 
 if(!Array.sortNumerically){
+	/**
+	 * Peforms a numeric sort on the source array
+	 * @param array
+	 * @returns {Array}
+	 */
     Array.sortNumerically = function(array){
         return array.sort(function(a,b){return a-b;});
     };
 }
 
 if(!Array.random){
+	/**
+	 * Returns a random element from the array, without removing it
+	 * @param {Array} array
+	 * @returns {*}
+	 */
     Array.random = function(array){
         return array[Math.floor(Math.random() * array.length)];
     };
+}
+
+if(!Array.last){
+	/**
+	 * Returns the last element in the array, without removing it
+	 * @param {Array} array
+	 * @returns {*}
+	 */
+	Array.last = function(array){
+		return array[array.length - 1];
+	};
+}
+
+if(!Array.sum){
+	/**
+	 * Returns the sum of all elements in the array
+	 * NOTE: This is the result of the performing the addition operator on all elements,
+	 *    which means the sum will be a numeric value for a numeric array or a concatenated
+	 *    string for a string array, etc.
+	 * @param {Array} array
+	 * @returns {*}
+	 */
+	Array.sum = function(array){
+		if(!array || !array.reduce) return array;
+		return array.reduce(function(a,b){
+			return a + b;
+		}, 0);
+	}
+}
+
+if(!Array.min){
+	/**
+	 * Returns the minimum element in the array (without removing it)
+	 * NOTE: This is the result of the performing the less than operator on all elements
+	 * @param {Array} array
+	 * @returns {*}
+	 */
+	Array.min = function(array){
+		if(!array || !array.reduce) return array;
+		return array.reduce(function(a, b){
+			return b < a ? b : a;
+		});
+	}
+}
+
+if(!Array.max){
+	/**
+	 * Returns the maximum element in the array (without removing it)
+	 * NOTE: This is the result of the performing the greater than operator on all elements
+	 * @param {Array} array
+	 * @returns {*}
+	 */
+	Array.max = function(array){
+		if(!array || !array.reduce) return array;
+		return array.reduce(function(a, b){
+			return b > a ? b : a;
+		});
+	}
 }
 
 if(!Array.toObject){
